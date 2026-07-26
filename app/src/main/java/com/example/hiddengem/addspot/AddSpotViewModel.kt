@@ -12,9 +12,11 @@ class AddSpotViewModel : ViewModel() {
     private val repo = SpotRepository()
     var error by mutableStateOf<String?>(null)
 
-    fun save(title: String, category: String, lat: Double, lng: Double, onDone: () -> Unit) {
+    fun save( title: String, category: String, bestTime: String,  lat: Double, lng: Double, photoUrl: String, onDone: () -> Unit) {
         val user = FirebaseAuth.getInstance().currentUser
-        val spot = Spot( title = title, category = category, latitude = lat, longitude = lng,
+        val spot = Spot(
+            title = title, category = category, bestTime = bestTime,
+            latitude = lat, longitude = lng, photoUrl = photoUrl,
             createdBy = user?.uid ?: "", createdByName = user?.email ?: "someone"
         )
         repo.addSpot(spot, onDone) { error = it }
