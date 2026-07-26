@@ -17,7 +17,7 @@ import coil.compose.AsyncImage
 import com.example.hiddengem.map.PickedLocation
 import com.example.hiddengem.util.LightTimes
 
-
+//test justine commit
 @Composable
 fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel()) {
     var title by remember { mutableStateOf("") }
