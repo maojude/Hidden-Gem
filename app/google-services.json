@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "940156139015",
+    "project_id": "hidden-gem-ca694",
+    "storage_bucket": "hidden-gem-ca694.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:940156139015:android:f8bc08c456a484f20f9ca2",
+        "android_client_info": {
+          "package_name": "com.example.hiddengem"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAg_BuMDOy6bDCLpNMdjz2eYc5ga7DkaGQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
