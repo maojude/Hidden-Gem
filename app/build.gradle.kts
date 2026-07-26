@@ -53,4 +53,25 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    // Navigation + ViewModel
+    implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+    // Firebase (BoM sets versions, so the lines below have none)
+    implementation(platform("com.google.firebase:firebase-bom:34.16.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
+    // Map (free OpenStreetMap — no Google key) + images
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // Golden-hour sun times (Week 7)
+    implementation("org.shredzone.commons:commons-suncalc:3.11")
+
+    // Current location (Week 8) + splash screen
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
 }
