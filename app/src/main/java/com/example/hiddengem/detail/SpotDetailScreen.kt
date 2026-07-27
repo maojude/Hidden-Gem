@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
+import com.example.hiddengem.addspot.EditingSpot
 import com.example.hiddengem.data.SpotRepository
 import com.example.hiddengem.model.Spot
 import com.example.hiddengem.components.AppTopBar
@@ -56,7 +57,7 @@ fun SpotDetailScreen(navController: NavController, spotId: String) {
                         }
                     }
 
-                    // Best-light panel — LightTimes turns the tag into today's clock time.
+                    // Best-light panel
                     Surface(color = Dusk, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                         Text(
                             "🌅  " + LightTimes.sentence(s.bestTime, s.latitude, s.longitude),
@@ -64,14 +65,25 @@ fun SpotDetailScreen(navController: NavController, spotId: String) {
                         )
                     }
 
+                    // Whole-day light strip
+                    LightStrip(s.latitude, s.longitude)
+
                     if (s.description.isNotBlank()) Text(s.description, color = Ink)
                     Text("Added by ${s.createdByName}", style = MaterialTheme.typography.labelMedium, color = Ink)
 
-                    // Owner-only delete (Jude)
+                    // Owner-only: Edit + RED Delete
                     if (s.createdBy == FirebaseAuth.getInstance().currentUser?.uid) {
+                        Button(
+                            onClick = { EditingSpot.id = s.id; navController.navigate("addSpot") },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Edit this spot") }
+
                         OutlinedButton(
                             onClick = { repo.deleteSpot(s.id, onDone = { navController.popBackStack() }, onError = {}) },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error   // red delete
+                            )
                         ) { Text("Delete this spot") }
                     }
                 }
