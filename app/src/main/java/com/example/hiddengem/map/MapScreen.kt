@@ -21,10 +21,25 @@ import com.example.hiddengem.data.SpotRepository
 import com.example.hiddengem.location.LocationHelper
 import com.example.hiddengem.model.Spot
 import com.example.hiddengem.ui.theme.Dusk
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+
+// Esri ArcGIS street tiles — free, no API key, and not rate-blocked like OSM's
+// volunteer servers. Note: Esri's URL order is z/y/x, not the usual z/x/y.
+// Declared as a plain `val` (not private) so PickLocationScreen can reuse it.
+val EsriStreets = object : OnlineTileSourceBase(
+    "EsriStreets", 0, 19, 256, "",
+    arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/")
+) {
+    override fun getTileURLString(pMapTileIndex: Long): String =
+        baseUrl +
+                MapTileIndex.getZoom(pMapTileIndex) + "/" +
+                MapTileIndex.getY(pMapTileIndex) + "/" +
+                MapTileIndex.getX(pMapTileIndex)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,24 +83,30 @@ fun MapScreen(navController: NavController) {
                         Text("Profile", color = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Dusk, titleContentColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Dusk, titleContentColor = Color.White
+                )
             )
         },
         floatingActionButton = {
-            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SmallFloatingActionButton(onClick = { onLocateClick() }) { Text("◎") }
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                SmallFloatingActionButton(onClick = { onLocateClick() }) { Text("◎") }   // locate me
                 FloatingActionButton(onClick = { navController.navigate("pickLocation") }) { Text("+") }
             }
         }
     ) { padding ->
         Box(Modifier.padding(padding).fillMaxSize()) {
+            // Map is the bottom layer
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
                     MapView(ctx).apply {
-                        setTileSource(TileSourceFactory.MAPNIK)
+                        setTileSource(EsriStreets)
                         controller.setZoom(13.0)
-                        controller.setCenter(GeoPoint(10.3157, 123.8854)) // Cebu
+                        controller.setCenter(GeoPoint(10.3157, 123.8854))
                         mapRef.value = this
                     }
                 },
@@ -103,8 +124,12 @@ fun MapScreen(navController: NavController) {
                     map.invalidate()
                 }
             )
+            // Chips float on top, pinned to the top of the screen
             Row(
-                Modifier.align(Alignment.TopStart).horizontalScroll(rememberScrollState()).padding(8.dp),
+                Modifier
+                    .align(Alignment.TopStart)
+                    .horizontalScroll(rememberScrollState())
+                    .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 categories.forEach { c ->
