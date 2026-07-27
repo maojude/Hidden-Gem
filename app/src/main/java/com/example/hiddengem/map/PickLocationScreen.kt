@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.hiddengem.location.LocationHelper
 import com.example.hiddengem.components.AppTopBar
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 
@@ -25,7 +24,7 @@ fun PickLocationScreen(navController: NavController) {
     val context = LocalContext.current
     val mapRef = remember { mutableStateOf<MapView?>(null) }
     val locationHelper = remember { LocationHelper(context) }
-    var target by remember { mutableStateOf<GeoPoint?>(null) }
+    var target by remember { mutableStateOf<GeoPoint?>(null) }   // remember where to center
 
     fun goToMyLocation() {
         locationHelper.currentLocation(
@@ -58,7 +57,7 @@ fun PickLocationScreen(navController: NavController) {
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
                     MapView(ctx).apply {
-                        setTileSource(TileSourceFactory.MAPNIK)
+                        setTileSource(EsriStreets)                     // shared from MapScreen.kt
                         controller.setZoom(16.0)
                         controller.setCenter(GeoPoint(10.3157, 123.8854)) // Cebu fallback
                         mapRef.value = this
