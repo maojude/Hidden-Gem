@@ -79,7 +79,18 @@ fun SpotDetailScreen(navController: NavController, spotId: String) {
                         ) { Text("Edit this spot") }
 
                         OutlinedButton(
-                            onClick = { repo.deleteSpot(s.id, onDone = { navController.popBackStack() }, onError = {}) },
+                            onClick = {
+                                repo.deleteSpot(
+                                    s.id,
+                                    onDone = {
+                                        navController.navigate("map") {
+                                            popUpTo("map") { inclusive = true }
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    onError = {}
+                                )
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.outlinedButtonColors(
                                 contentColor = MaterialTheme.colorScheme.error   // red delete

@@ -74,7 +74,12 @@ fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel
     }
 
     Column(
-        Modifier.fillMaxSize().statusBarsPadding().padding(24.dp).verticalScroll(rememberScrollState()),
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(if (editingId == null) "Add a spot" else "Edit spot", style = MaterialTheme.typography.headlineSmall)
@@ -136,7 +141,11 @@ fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel
                 }
                 if (formError == null) {
                     vm.save(editingId, title, category, description, bestTime, latValue!!, lngValue!!, photoUrl) {
-                        navController.popBackStack("map", false)
+                        android.util.Log.d("SAVE", "onDone fired - navigating now")
+                        navController.navigate("map") {
+                            popUpTo("map") { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
                 }
             },
