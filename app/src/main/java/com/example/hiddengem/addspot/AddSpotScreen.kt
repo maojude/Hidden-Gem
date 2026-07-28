@@ -18,6 +18,7 @@ import com.example.hiddengem.data.SpotRepository
 import com.example.hiddengem.map.PickedLocation
 import com.example.hiddengem.util.LightTimes
 
+//test justine commit
 @Composable
 fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel()) {
     val repo = remember { SpotRepository() }
