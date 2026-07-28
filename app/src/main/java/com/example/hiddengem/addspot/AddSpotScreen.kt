@@ -1,5 +1,9 @@
 package com.example.hiddengem.addspot
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,14 +19,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.hiddengem.data.SpotRepository
+import com.example.hiddengem.data.StorageRepository
 import com.example.hiddengem.map.PickedLocation
 import com.example.hiddengem.util.LightTimes
 
-//test justine commit
 @Composable
 fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel()) {
     val repo = remember { SpotRepository() }
+    val storageRepo = remember { StorageRepository() }
     var formError by remember { mutableStateOf<String?>(null) }
+    var uploading by remember { mutableStateOf(false) }
     var title by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -31,6 +37,21 @@ fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel
     var lng by remember { mutableStateOf("123.8854") }
     var photoUrl by remember { mutableStateOf("") }
     var editingId by remember { mutableStateOf<String?>(null) }
+
+    // Gallery picker: on pick, upload the image and store the returned URL.
+    val pickImage = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            uploading = true
+            formError = null
+            storageRepo.uploadSpotPhoto(
+                uri,
+                onDone = { url -> photoUrl = url; uploading = false },
+                onError = { formError = it; uploading = false }
+            )
+        }
+    }
 
     // On open: EDIT an existing spot, or take the map-picked location for a NEW spot.
     LaunchedEffect(Unit) {
@@ -80,7 +101,17 @@ fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel
             }
         }
 
-        OutlinedTextField(photoUrl, { photoUrl = it }, label = { Text("Photo URL (paste an image link)") }, modifier = Modifier.fillMaxWidth())
+        Text("Photo", style = MaterialTheme.typography.labelLarge)
+        Button(
+            onClick = {
+                pickImage.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            },
+            enabled = !uploading,
+            modifier = Modifier.fillMaxWidth()
+        ) { Text(if (uploading) "Uploading…" else if (photoUrl.isBlank()) "Pick a photo" else "Change photo") }
+
         if (photoUrl.isNotBlank()) {
             AsyncImage(
                 model = photoUrl, contentDescription = null, contentScale = ContentScale.Crop,
@@ -99,6 +130,7 @@ fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel
                 formError = when {
                     title.isBlank()                      -> "Please add a title"
                     category.isBlank()                   -> "Please pick a category"
+                    uploading                            -> "Please wait for the photo to finish uploading"
                     latValue == null || lngValue == null -> "Location looks invalid"
                     else                                 -> null
                 }
@@ -108,6 +140,7 @@ fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel
                     }
                 }
             },
+            enabled = !uploading,
             modifier = Modifier.fillMaxWidth()
         ) { Text(if (editingId == null) "Save spot" else "Save changes") }
         formError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
