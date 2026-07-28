@@ -1,4 +1,3 @@
 package com.example.hiddengem.addspot
 
-class EditingSpot {
-}
+object EditingSpot { var id: String? = null }

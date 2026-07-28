@@ -14,31 +14,50 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.hiddengem.data.SpotRepository
 import com.example.hiddengem.map.PickedLocation
 import com.example.hiddengem.util.LightTimes
 
 //test justine commit
 @Composable
 fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel()) {
+    val repo = remember { SpotRepository() }
+    var formError by remember { mutableStateOf<String?>(null) }
     var title by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
     var bestTime by remember { mutableStateOf("") }
-    var lat by remember { mutableStateOf("10.3157") }
+    var lat by remember { mutableStateOf("10.3157") }   // Cebu default
     var lng by remember { mutableStateOf("123.8854") }
     var photoUrl by remember { mutableStateOf("") }
+    var editingId by remember { mutableStateOf<String?>(null) }
 
-    // Prefill coordinates from the map picker (runs once when this screen opens).
+    // On open: EDIT an existing spot, or take the map-picked location for a NEW spot.
     LaunchedEffect(Unit) {
-        PickedLocation.lat?.let { lat = it.toString() }
-        PickedLocation.lng?.let { lng = it.toString() }
-        PickedLocation.lat = null; PickedLocation.lng = null
+        val id = EditingSpot.id
+        EditingSpot.id = null
+        if (id != null) {
+            editingId = id
+            repo.getSpot(id) { s ->
+                if (s != null) {
+                    title = s.title; category = s.category; description = s.description
+                    bestTime = s.bestTime; photoUrl = s.photoUrl
+                    lat = s.latitude.toString(); lng = s.longitude.toString()
+                }
+            }
+        } else {
+            PickedLocation.lat?.let { lat = it.toString() }
+            PickedLocation.lng?.let { lng = it.toString() }
+            PickedLocation.lat = null; PickedLocation.lng = null
+        }
     }
 
     Column(
         Modifier.fillMaxSize().statusBarsPadding().padding(24.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("Add a spot", style = MaterialTheme.typography.headlineSmall)
+        Text(if (editingId == null) "Add a spot" else "Edit spot", style = MaterialTheme.typography.headlineSmall)
+
         OutlinedTextField(title, { title = it }, label = { Text("Title") }, modifier = Modifier.fillMaxWidth())
 
         Text("Category", style = MaterialTheme.typography.labelLarge)
@@ -47,6 +66,12 @@ fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel
                 FilterChip(selected = category == option, onClick = { category = option }, label = { Text(option) })
             }
         }
+
+        OutlinedTextField(
+            description, { description = it },
+            label = { Text("Description (what makes it special?)") },
+            modifier = Modifier.fillMaxWidth(), minLines = 2
+        )
 
         Text("Best light", style = MaterialTheme.typography.labelLarge)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -69,13 +94,23 @@ fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel
         Spacer(Modifier.height(8.dp))
         Button(
             onClick = {
-                vm.save(
-                    title, category, bestTime,
-                    lat.toDoubleOrNull() ?: 0.0, lng.toDoubleOrNull() ?: 0.0, photoUrl
-                ) { navController.popBackStack("map", false) }
+                val latValue = lat.toDoubleOrNull()
+                val lngValue = lng.toDoubleOrNull()
+                formError = when {
+                    title.isBlank()                      -> "Please add a title"
+                    category.isBlank()                   -> "Please pick a category"
+                    latValue == null || lngValue == null -> "Location looks invalid"
+                    else                                 -> null
+                }
+                if (formError == null) {
+                    vm.save(editingId, title, category, description, bestTime, latValue!!, lngValue!!, photoUrl) {
+                        navController.popBackStack("map", false)
+                    }
+                }
             },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("Save spot") }
+        ) { Text(if (editingId == null) "Save spot" else "Save changes") }
+        formError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         vm.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
 }
