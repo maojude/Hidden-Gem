@@ -22,6 +22,8 @@ class MainActivity : ComponentActivity() {
         )
         Configuration.getInstance().userAgentValue = packageName  // avoids blank map tiles
 
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             HiddenGemTheme { AppNavigation() }
         }

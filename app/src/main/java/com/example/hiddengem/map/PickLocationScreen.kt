@@ -62,6 +62,10 @@ fun PickLocationScreen(navController: NavController) {
                         controller.setCenter(GeoPoint(10.3157, 123.8854)) // Cebu fallback
                         mapRef.value = this
                         target?.let { controller.setCenter(it) }
+                        setMultiTouchControls(true)                     // enables pinch-to-zoom (if not already there)
+                        zoomController.setVisibility(
+                            org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER
+                        )
                     }
                 }
             )

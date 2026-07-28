@@ -105,6 +105,7 @@ fun MapScreen(navController: NavController) {
                 factory = { ctx ->
                     MapView(ctx).apply {
                         setTileSource(EsriStreets)
+                        setMultiTouchControls(true)
                         controller.setZoom(13.0)
                         controller.setCenter(GeoPoint(10.3157, 123.8854))
                         mapRef.value = this

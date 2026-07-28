@@ -79,6 +79,7 @@ fun AddSpotScreen(navController: NavController, vm: AddSpotViewModel = viewModel
             .verticalScroll(rememberScrollState())
             .statusBarsPadding()
             .navigationBarsPadding()
+            .imePadding()
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
