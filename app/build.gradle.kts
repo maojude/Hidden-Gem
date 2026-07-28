@@ -77,5 +77,7 @@ dependencies {
 
     implementation("androidx.preference:preference-ktx:1.2.1")
 
+    implementation("com.google.firebase:firebase-storage")
+
 
 }
