@@ -44,10 +44,11 @@ val EsriStreets = object : OnlineTileSourceBase(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(navController: NavController) {
-    val context = LocalContext.current
-    val repo = remember { SpotRepository() }
-    val locationHelper = remember { LocationHelper(context) }
-    val mapRef = remember { mutableStateOf<MapView?>(null) }
+    // Setup / Local Variables
+    val context = LocalContext.current  // access to android app resources
+    val repo = remember { SpotRepository() }    // Firestore data handler
+    val locationHelper = remember { LocationHelper(context) }   //helper that gets the user’s GPS location.
+    val mapRef = remember { mutableStateOf<MapView?>(null) } //a saved reference to the actual MapView object
 
     var spots by remember { mutableStateOf<List<Spot>>(emptyList()) }
     var filter by remember { mutableStateOf("All") }
